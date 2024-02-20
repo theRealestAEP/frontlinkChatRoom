@@ -40,14 +40,14 @@ wss.on('connection', function connection(ws: WebSocketServer) {
   });
 });
 
-const interval = setInterval(function ping() {
-  wss.clients.forEach(function each(ws: WebSocketServer) {
-    if (ws.isAlive === false) return ws.terminate();
+// const interval = setInterval(function ping() {
+//   wss.clients.forEach(function each(ws: WebSocketServer) {
+//     if (ws.isAlive === false) return ws.close();
 
-    ws.isAlive = false;
-    ws.ping();
-  });
-}, 30000);
+//     ws.isAlive = false;
+//     ws.ping();
+//   });
+// }, 30000);
 
 function handleMessage(ws: WebSocketServer, msgJson: any) {
   // Handle Subscribe and Unsubscribe messages
