@@ -1,64 +1,98 @@
-`use client`
-import React, { useEffect, useState } from 'react';
-import { Emitter, Events, useSharedState } from 'frontlink';
+'use client';
+import { useSharedState, useSharedFunction } from "frontlink"
+import { useEffect, useState } from "react"
 
-export default function ChatRoom() {
-    const [messages, setMessages] = useSharedState<string>("chatRoom", ""); //make CRoom dynamic 
-    const [input, setInput] = useState("");
-    const [history, setHistory] = useState<string[]>([]); //new state to save the existing messages
-    // Send message function remains the same 
+export default function SomeSharedComponent() {
+  const [messages, setMessages] = useState<string[]>([]) // local state
+  const [curMessage, setCurMessage] = useState("") // local state
+  const [value, setValue] = useSharedState("someRoomName", "my local value")
+  const [userName, setUserName] = useState<null | string>(null);
+  const [newUserName, setnewUserName] = useState("")
 
-    //make change so that if new user joins the room and sends a message, it doesnt override the existing messages of other users
-    //need to write existing messages to some local state to save them or give the new user the existing messages 
-    //or both - maybe some DB to save the messages and then give the new user the existing messages? 
+  const sharedFunc = useSharedFunction("sharedFunc", async (someArg: string) => {
+    setMessages((prev) => [...prev, someArg])
+  })
 
-    const sendMessage = () => {
-        if (input.trim()) {
-            setMessages(input);
-            setHistory((history) => [...history, input])
-            setInput("");
-            // setHistory((history) => { [...h.istory, input] }); //save the message to the history state
-        }
-    };
+  useEffect(() => {
+    setTimeout(() => {
+      setUserName(''); // Assuming no userName is set yet
+      //to fix hydration mismatch
+    }, 0);
+  }, []);
 
-    useEffect(() => {
-        Emitter.on(Events.MessageReceived, (message: string) => {
-            console.log(`Received message: ${message}`);
-            setHistory((history) => [...history, message]); // Fix: Return the updated state
-            console.log(message)
-        });
-
-    }, []);
-    // Emitter.on(
-    //     EventTypes.RoommateSubscribe,
-    //     (msg: Messages.RoommateSubscribedMessage) => {
-    //       // Present
-    //     }
-    //   )
-    useEffect(() => {
-        Emitter.on(Events.MessageEmitted, (message: string) => {
-            console.log(`Sent message: ${message}`);
-            console.log(message)
-            // setHistory((history) => [...history, message]); // Fix: Return the updated state
-        });
-
-    }, [])
-
+  if (userName === null) {
+    return <div>Loading...</div> //to fix hydration mismatch
+  } else if (userName === "") {
     return (
-        <div>
-            <h2>Chat Room</h2>
-            <div className="flex-col justify-around">
-                {history.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                ))}
+      <div className="flex justify-center items-center bg-gray-200">
+        <div className="w-full max-w-7xl p-6 mt-10 bg-white rounded-lg shadow-lg">
+          <div className="flex flex-col h-96 border-b-2 border-gray-300 overflow-y-scroll">
+            {/* Messages will go here */}
+            <p>Welcome to the Room</p>
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <div key={index} className="flex items-end">
+                  <p className="text-sm">{message}</p>
+                </div>
+              ))}
             </div>
-            <input className="border-2 border-gray-300"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          </div>
+          <div className="mt-4 flex">
+            <input
+              className="w-full p-2 border-2 border-gray-300 rounded-lg"
+              value={newUserName}
+              onChange={(e) => {
+                setnewUserName(e.target.value);
+              }}
             />
-            <button onClick={sendMessage}>Send</button>
+            <button
+              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              onClick={() => {
+                setUserName(newUserName); // this gets called on all clients
+              }}
+            >
+              SET USER NAME
+            </button>
+          </div>
         </div>
+      </div>
     );
+
+  }
+  if(userName != ""){
+    return (
+      <div className="flex justify-center items-center bg-gray-200">
+        <div className="w-full max-w-7xl p-6 mt-10 bg-white rounded-lg shadow-lg">
+          <div className="flex flex-col h-96 border-b-2 border-gray-300 overflow-y-scroll">
+            {/* Messages will go here */}
+            <p>Welcome to the chat Room</p>
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <div key={index} className="flex items-end">
+                  <p className="text-sm">{message}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4 flex">
+            <input
+              className="w-full p-2 border-2 border-gray-300 rounded-lg"
+              value={curMessage}
+              onChange={(e) => {
+                setCurMessage(e.target.value);
+              }}
+            />
+            <button
+              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              onClick={() => {
+                sharedFunc(`${userName}: ${curMessage}`); // this gets called on all clients
+              }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
