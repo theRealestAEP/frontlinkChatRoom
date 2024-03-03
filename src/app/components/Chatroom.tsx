@@ -28,7 +28,8 @@ export default function SomeSharedComponent() {
         <div className="w-full max-w-7xl p-6 mt-10 bg-white rounded-lg shadow-lg">
           <div className="flex flex-col h-96 border-b-2 border-gray-300 overflow-y-scroll">
             {/* Messages will go here */}
-            <p>Welcome to the Room</p>
+            <p>Welcome to the Room: This room is powered by Frontlink</p>
+            <a href="https://www.npmjs.com/package/frontlink">Frontlink here</a>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div key={index} className="flex items-end">
@@ -65,7 +66,8 @@ export default function SomeSharedComponent() {
         <div className="w-full max-w-7xl p-6 mt-10 bg-white rounded-lg shadow-lg">
           <div className="flex flex-col h-96 border-b-2 border-gray-300 overflow-y-scroll">
             {/* Messages will go here */}
-            <p>Welcome to the chat Room</p>
+            <p>Welcome to the Room: This room is powered by Frontlink</p>
+            <a href="https://www.npmjs.com/package/frontlink">Frontlink here</a>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div key={index} className="flex items-end">
